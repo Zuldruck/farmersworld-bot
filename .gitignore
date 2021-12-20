@@ -3,3 +3,4 @@ accounts.json
 paybw.json
 test.*
 trade.js
+.env
