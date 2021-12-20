@@ -3,13 +3,12 @@ const logs = [];
 const MAX_LINES = 200;
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const { TIMEZONE } = require("./config.json");
 
 function nowAsString() {
     return new Date()
         .toLocaleString("en-US", {
             timeZoneName: "short",
-            timeZone: TIMEZONE,
+            timeZone: "Europe/Paris",
             hour12: false,
         })
         .replace(

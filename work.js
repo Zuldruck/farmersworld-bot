@@ -13,7 +13,6 @@ const {
     PAYBW,
     MINIMUM_FEE,
     MINIMUN_WITHDRAW,
-    TIMEZONE,
     WITHDRAWABLE,
 } = require("./config.json");
 
@@ -290,7 +289,7 @@ async function main(paybw) {
             "Next claim at",
             new Date(nextClaim * 1000).toLocaleString("en-US", {
                 timeZoneName: "short",
-                timeZone: TIMEZONE,
+                timeZone: "Europe/Paris",
             })
         );
 

@@ -3,7 +3,7 @@ import { delay, calcNextClaim, getClaimableAssets, parseBalance, toCamelCase } f
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const accounts = require("./accounts.json");
-const { TIMEZONE, PAYBW } = require("./config.json");
+const { PAYBW } = require("./config.json");
 const ENERGY_PER_FOOD = 5;
 const PLANT_CHARGE_TIME = 14400; // 4 hours
 
@@ -74,7 +74,7 @@ async function main(paybw = null) {
             "Next cropclaim at",
             new Date(nextClaim * 1000).toLocaleString("en-US", {
                 timeZoneName: "short",
-                timeZone: TIMEZONE,
+                timeZone: "Europe/Paris",
             })
         );
 
