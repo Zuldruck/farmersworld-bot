@@ -1,7 +1,7 @@
 {
     "name": "farmersworld-bot",
     "version": "1.0.0",
-    "author": "Ant<txiuqw4@gmail.com>",
+    "author": "Lucas Sanchez<lucas.sanchez.dev@gmail.com>",
     "description": "Farmers World bot",
     "license": "MIT",
     "main": "src/app.js",
