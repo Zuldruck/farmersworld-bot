@@ -4,8 +4,8 @@ import plant from "./plant.js";
 import logs from "./log.js";
 import express from "express";
 import { createRequire } from "module";
+import { WALLET, PRIVATE_KEY } from "./environment.js";
 const require = createRequire(import.meta.url);
-const accounts = require("./accounts.json");
 const app = express();
 const port = 3000;
 
@@ -35,31 +35,29 @@ function highlight(r) {
 
 async function getHeader() {
     let headers = [];
-    for (const account of accounts) {
-        const data = await query({
-            json: true,
-            code: "farmersworld",
-            scope: "farmersworld",
-            table: "accounts",
-            lower_bound: account.wallet,
-            upper_bound: account.wallet,
-            index_position: 1,
-            key_type: "",
-            limit: "100",
-            reverse: false,
-            show_payer: false,
-        });
+    const data = await query({
+        json: true,
+        code: "farmersworld",
+        scope: "farmersworld",
+        table: "accounts",
+        lower_bound: WALLET,
+        upper_bound: WALLET,
+        index_position: 1,
+        key_type: "",
+        limit: "100",
+        reverse: false,
+        show_payer: false,
+    });
 
-        if (data.rows.length === 0) continue;
+    if (data.rows.length === 0) continue;
 
-        headers.push(
-            `<font color="blue">${
-                account.wallet
-            }</font> ${data.rows[0].balances.join(" - ")}`
-        );
+    headers.push(
+        `<font color="blue">${
+            WALLET
+        }</font> ${data.rows[0].balances.join(" - ")}`
+    );
 
-        headers.push(`<p style="margin-top:2px;">energy: ${data.rows[0].energy}/${data.rows[0].max_energy}</p>`);
-    }
+    headers.push(`<p style="margin-top:2px;">energy: ${data.rows[0].energy}/${data.rows[0].max_energy}</p>`);
 
     headers = headers.map((r) =>
         r.replace(/\s([0-9\.]{1,10})/g, ' <font color="green">$1</font>')

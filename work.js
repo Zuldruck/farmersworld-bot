@@ -3,10 +3,7 @@ import historyTransaction from "./service/wax-transaction.js";
 import { mine, repair, recover, withdraw } from "./farmersworld.js";
 import { toCamelCase } from "./utils.js";
 import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const accounts = require("./accounts.json");
-const MAX_DELAY = 3600; // 1 hour
-const {
+import {
     REPAIR_IF_DURABILITY_LOWER,
     RECOVER_IF_ENERGY_LOWER,
     LOWEST_ENERGY,
@@ -14,7 +11,11 @@ const {
     MINIMUM_FEE,
     MINIMUN_WITHDRAW,
     WITHDRAWABLE,
-} = require("./config.json");
+    WALLET,
+    PRIVATE_KEY,
+} from "./environment.js";
+const require = createRequire(import.meta.url);
+const MAX_DELAY = 3600; // 1 hour
 
 function queryData(wallet) {
     return query({
@@ -119,15 +120,13 @@ async function getAccount(wallet) {
 async function fetchTools() {
     let tools = [];
 
-    for (const account of accounts) {
-        console.log("run with wallet ", account.wallet);
-        const data = await queryData(account.wallet);
-        tools = tools.concat(
-            data
-                ? data.rows.map((r) => ({ ...toCamelCase(r), ...account }))
-                : []
-        );
-    }
+    console.log("run with wallet ", WALLET);
+    const data = await queryData(WALLET);
+    tools = tools.concat(
+        data
+            ? data.rows.map((r) => ({ ...toCamelCase(r), wallet: WALLET, privateKey: PRIVATE_KEY }))
+            : []
+    );
 
     return tools;
 }
@@ -181,19 +180,13 @@ function logDurability(tools) {
  *
  * @return array
  */
-async function syncAccounts() {
-    const data = [];
-
-    for (const account of accounts) {
-        const r = await getAccount(account.wallet);
-        data.push({
-            ...r,
-            ...account,
-        });
-        await delay(500);
-    }
-
-    return data;
+async function syncAccount() {
+    const r = await getAccount(WALLET);
+    return {
+        ...r,
+        wallet: WALLET,
+        privateKey: PRIVATE_KEY,
+    };
 }
 
 async function fetchBalanceOf(wallet, type) {
@@ -228,43 +221,41 @@ async function anotherTask(tools, paybw = null) {
         }
 
         const canWithdraw = await isWithdrawFeeEqual(MINIMUM_FEE);
-        const fwAccounts = await syncAccounts();
+        const fwAccount = await syncAccount();
 
-        for (const account of fwAccounts) {
-            if (account.energy <= RECOVER_IF_ENERGY_LOWER) {
-                let energy = account.max_energy - account.energy;
-                let consumed = energy / 5;
-                const food = parseBalance(
-                    account.balances.find((r) =>
-                        r.toUpperCase().endsWith("FOOD")
-                    )
-                );
+        if (fwAccount.energy <= RECOVER_IF_ENERGY_LOWER) {
+            let energy = fwAccount.max_energy - fwAccount.energy;
+            let consumed = energy / 5;
+            const food = parseBalance(
+                fwAccount.balances.find((r) =>
+                    r.toUpperCase().endsWith("FOOD")
+                )
+            );
 
-                if (account.energy <= LOWEST_ENERGY && food < consumed) {
-                    consumed = Math.floor(food);
-                    energy = consumed * 5;
-                }
-
-                if (food >= consumed) {
-                    console.log("Recover", account.wallet, energy, "energy");
-                    await recover(account, energy, paybw);
-                } else {
-                    console.log("Not enough food to recover.");
-                    continue;
-                }
+            if (fwAccount.energy <= LOWEST_ENERGY && food < consumed) {
+                consumed = Math.floor(food);
+                energy = consumed * 5;
             }
 
-            if (canWithdraw) {
-                const quantities = account.balances.filter((r) => {
-                    const amount = parseBalance(r);
-                    const symbol = r.split(" ")[1];
-                    return amount > MINIMUN_WITHDRAW && WITHDRAWABLE.includes(symbol);
-                });
+            if (food >= consumed) {
+                console.log("Recover", fwAccount.wallet, energy, "energy");
+                await recover(fwAccount, energy, paybw);
+            } else {
+                console.log("Not enough food to recover.");
+                continue;
+            }
+        }
 
-                if (quantities.length > 0) {
-                    console.log("Withdrawing...");
-                    await withdraw(account, quantities, MINIMUM_FEE, paybw);
-                }
+        if (canWithdraw) {
+            const quantities = fwAccount.balances.filter((r) => {
+                const amount = parseBalance(r);
+                const symbol = r.split(" ")[1];
+                return amount > MINIMUN_WITHDRAW && WITHDRAWABLE.includes(symbol);
+            });
+
+            if (quantities.length > 0) {
+                console.log("Withdrawing...");
+                await withdraw(fwAccount, quantities, MINIMUM_FEE, paybw);
             }
         }
     } catch (e) {

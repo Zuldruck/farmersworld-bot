@@ -1,9 +1,8 @@
 import { cropclaim, queryData, recover, tables } from "./farmersworld.js";
 import { delay, calcNextClaim, getClaimableAssets, parseBalance, toCamelCase } from "./utils.js";
 import { createRequire } from "module";
+import { PAYBW, WALLET, PRIVATE_KEY } from "./environment.js";
 const require = createRequire(import.meta.url);
-const accounts = require("./accounts.json");
-const { PAYBW } = require("./config.json");
 const ENERGY_PER_FOOD = 5;
 const PLANT_CHARGE_TIME = 14400; // 4 hours
 
@@ -55,7 +54,7 @@ async function recoverEnergy(plants, paybw = null) {
 
             console.log("Recover", wallet, energy, "energy");
             await recover(
-                accounts.find((r) => r.wallet === wallet),
+                { wallet: WALLET, privateKey: PRIVATE_KEY },
                 energy,
                 paybw
             );
@@ -65,7 +64,7 @@ async function recoverEnergy(plants, paybw = null) {
 }
 
 async function main(paybw = null) {
-    const plants = await tables("crops", accounts);
+    const plants = await tables("crops", { wallet: WALLET, privateKey: PRIVATE_KEY });
     const nextClaim = calcNextClaim(plants, PLANT_CHARGE_TIME);
     const difftime = Math.ceil(nextClaim - Date.now() / 1000);
 

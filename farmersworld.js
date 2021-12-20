@@ -311,17 +311,15 @@ export function queryData(table, filter = null, indexPosition = 2) {
 * 
 * @return Promise(Array)
 */
-export async function tables(table, accounts) {
+export async function tables(table, account) {
     let rows = [];
-    for (const account of accounts) {
-        console.log("Fetch", table, "wallet ", account.wallet);
-        const data = await queryData(table, account.wallet);
-        rows = rows.concat(
-            data
-                ? data.rows.map((r) => ({ ...toCamelCase(r), ...account }))
-                : []
-        );
-    }
+    console.log("Fetch", table, "wallet ", account.wallet);
+    const data = await queryData(table, account.wallet);
+    rows = rows.concat(
+        data
+            ? data.rows.map((r) => ({ ...toCamelCase(r), ...account }))
+            : []
+    );
 
     return rows;
 }
