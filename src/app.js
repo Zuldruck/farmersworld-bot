@@ -4,10 +4,10 @@ import plant from "./plant.js";
 import logs from "./log.js";
 import express from "express";
 import { createRequire } from "module";
-import { WALLET, PRIVATE_KEY } from "./environment.js";
+import { WALLET, PORT } from "./environment.js";
 const require = createRequire(import.meta.url);
 const app = express();
-const port = 3000;
+const port = PORT || 3000;
 
 function highlight(r) {
     return r
