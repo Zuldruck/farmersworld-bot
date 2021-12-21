@@ -242,7 +242,6 @@ async function anotherTask(tools, paybw = null) {
                 await recover(fwAccount, energy, paybw);
             } else {
                 console.log("Not enough food to recover.");
-                continue;
             }
         }
 

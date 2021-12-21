@@ -49,7 +49,7 @@ async function getHeader() {
         show_payer: false,
     });
 
-    if (data.rows.length === 0) continue;
+    if (data.rows.length === 0) return;
 
     headers.push(
         `<font color="blue">${
