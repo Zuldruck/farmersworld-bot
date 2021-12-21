@@ -12,3 +12,5 @@ export const PAYBW = process.env.PAYBW;
 
 export const WALLET = process.env.WALLET;
 export const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
+export const PORT = process.env.PORT;
