@@ -33,6 +33,36 @@ export function mine(inputData, paybw = null) {
 }
 
 /*
+ * claim membership
+ *
+ * @param inputData object {"wallet": "", "privateKey": "", "assetId": ""}
+ * @param paybw object {"wallet": "", "privateKey": ""} | null
+ * @return Promise
+ */
+export function mbsclaim(inputData, paybw = null) {
+    return transact(
+        inputData.privateKey,
+        [
+            {
+                account: "farmersworld",
+                name: "mbsclaim",
+                authorization: [
+                    {
+                        actor: inputData.wallet,
+                        permission: "active",
+                    },
+                ],
+                data: {
+                    owner: inputData.wallet,
+                    asset_id: inputData.assetId,
+                },
+            },
+        ],
+        paybw
+    );
+}
+
+/*
  * repair a tool
  *
  * @param inputData object {"wallet": "", "privateKey": "", "assetId": ""}
