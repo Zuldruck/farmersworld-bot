@@ -28,39 +28,33 @@ async function getPlantConf() {
 
 async function recoverEnergy(plants, paybw = null) {
     if (plants.length === 0) return;
-    const wallets = new Set(plants.map((r) => r.wallet));
+    const data = await queryData("accounts", WALLET, 1);
+    if (!data || data.rows.length === 0) return;
+    const account = toCamelCase(data.rows[0]);
+    const actualFood = parseBalance(
+        account.balances.find((r) => r.toUpperCase().endsWith("FOOD"))
+    );
 
-    for (const wallet of wallets) {
-        const data = await queryData("accounts", wallet, 1);
-        if (!data || data.rows.length === 0) continue;
-        const account = toCamelCase(data.rows[0]);
-        const food = parseBalance(
-            account.balances.find((r) => r.toUpperCase().endsWith("FOOD"))
-        );
+    const consumedEnergy = plants
+        .reduce((a, c) => a + cropconf[c.templateId].energyConsumed, 0);
 
-        const consumedEnergy = plants
-            .filter((r) => r.wallet === wallet)
-            .reduce((a, c) => a + cropconf[c.templateId].energyConsumed, 0);
+    console.log(`Claiming crops consume ${consumedEnergy} energy`);
 
-        console.log("Watering consume", consumedEnergy, "energy");
+    if (account.energy >= consumedEnergy) return;
+    
+    const foodNeededToRecover = Math.floor(
+        (account.maxEnergy - account.energy) / ENERGY_PER_FOOD
+    );
+    const energyToRecover = (foodNeededToRecover < actualFood
+        ? foodNeededToRecover
+        : Math.floor(actualFood)) * ENERGY_PER_FOOD;
 
-        if (account.energy < consumedEnergy) {
-            let consumedFood = Math.floor(
-                (account.maxEnergy - account.energy) / ENERGY_PER_FOOD
-            );
-            consumedFood =
-                consumedFood < food ? consumedFood : Math.floor(food);
-            const energy = consumedFood * ENERGY_PER_FOOD;
-
-            console.log("Recover", wallet, energy, "energy");
-            await recover(
-                { wallet: WALLET, privateKey: PRIVATE_KEY },
-                energy,
-                paybw
-            );
-            await delay(400);
-        }
-    }
+    console.log(`Recovering ${energyToRecover} energy`);
+    await recover(
+        { wallet: WALLET, privateKey: PRIVATE_KEY },
+        energyToRecover,
+        paybw
+    );
 }
 
 async function main(paybw = null) {
@@ -83,6 +77,7 @@ async function main(paybw = null) {
     const claimable = getClaimableAssets(plants);
 
     await recoverEnergy(claimable, paybw);
+    await delay(400);
 
     for (const plant of claimable) {
         await water(plant, paybw);
