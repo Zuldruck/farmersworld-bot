@@ -9,7 +9,7 @@ import {
     LOWEST_ENERGY,
     PAYBW,
     MINIMUM_FEE,
-    MINIMUN_WITHDRAW,
+    MINIMUM_WITHDRAW,
     WITHDRAWABLE,
     WALLET,
     PRIVATE_KEY,
@@ -249,7 +249,7 @@ async function anotherTask(tools, paybw = null) {
             const quantities = fwAccount.balances.filter((r) => {
                 const amount = parseBalance(r);
                 const symbol = r.split(" ")[1];
-                return amount > MINIMUN_WITHDRAW && WITHDRAWABLE.includes(symbol);
+                return amount > MINIMUM_WITHDRAW && WITHDRAWABLE.includes(symbol);
             });
 
             if (quantities.length > 0) {
