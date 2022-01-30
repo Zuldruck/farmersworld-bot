@@ -7,7 +7,7 @@ export const RECOVER_IF_ENERGY_LOWER = parseInt(process.env.RECOVER_IF_ENERGY_LO
 export const LOWEST_ENERGY = parseInt(process.env.LOWEST_ENERGY);
 export const MINIMUM_FEE = parseInt(process.env.MINIMUM_FEE);
 export const MINIMUN_WITHDRAW = parseInt(process.env.MINIMUN_WITHDRAW);
-export const WITHDRAWABLE = process.env.WITHDRAWABLE.split(',');
+export const WITHDRAWABLE = process.env.WITHDRAWABLE && process.env.WITHDRAWABLE.split(',');
 export const PAYBW = process.env.PAYBW;
 
 export const WALLET = process.env.WALLET;
