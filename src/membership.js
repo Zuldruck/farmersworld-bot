@@ -54,8 +54,8 @@ async function main(paybw = null)
     console.log(
       "Next membership claim at",
       new Date(nextClaim * 1000).toLocaleString("en-US", {
-          timeZoneName: "short",
-          timeZone: "Europe/Paris",
+        timeZoneName: "short",
+        timeZone: "Europe/Paris",
       })
     );
     await delay(difftime * 1000);
